@@ -1,3 +1,4 @@
+//Customized code for imaask PhoneInput
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -10,6 +11,7 @@ const flags_1 = __importDefault(require("./resources/flags"));
 const PhoneNumber_1 = __importDefault(require("./PhoneNumber"));
 const styles_1 = __importDefault(require("./styles"));
 const CountryPicker_1 = __importDefault(require("./CountryPicker"));
+import User from "../../../User";
 class PhoneInput extends react_1.default.Component {
     constructor(props) {
         super(props);
@@ -21,6 +23,8 @@ class PhoneInput extends react_1.default.Component {
                 }
                 : null;
             this.updateValue(number, actionAfterSetState);
+            User.StartUp.DB.StartUpMobile = JSON.stringify(number);
+            User.StartUp.updated_DB()
         };
         this.onPressFlag = () => {
             if (this.props.onPressFlag) {
@@ -47,6 +51,8 @@ class PhoneInput extends react_1.default.Component {
                         if (this.props.onSelectCountry)
                             this.props.onSelectCountry(iso2);
                     });
+                    User.StartUp.DB.flag = iso2;
+                    User.StartUp.updated_DB()
                 }
             }
         };
@@ -82,6 +88,17 @@ class PhoneInput extends react_1.default.Component {
     }
     static setCustomCountriesData(json) {
         country_1.default.setCustomCountriesData(json);
+    }
+    componentDidMount = async () => {
+        const number = User.StartUp.DB.StartUpMobile; //await AsyncStorage.getItem('phone');
+        // alert("number = " + number)
+        const flag =  User.StartUp.DB.flag;//await AsyncStorage.getItem('flag');
+        if (number) {
+            this.onChangePhoneNumber(number)
+        }
+        // if (flag) {
+        //     this.selectCountry(flag)
+        // }
     }
     componentDidUpdate() {
         const { disabled } = this.props;
@@ -187,7 +204,7 @@ class PhoneInput extends react_1.default.Component {
                         this.inputPhone = ref;
                     }, accessibilityLabel: this.getAccessibilityLabel(), editable: !disabled, autoCorrect: false, style: [styles_1.default.text, this.props.textStyle], onChangeText: (text) => {
                         this.onChangePhoneNumber(text);
-                    }, keyboardType: "phone-pad", underlineColorAndroid: "rgba(0,0,0,0)", value: displayValue }, this.props.textProps))),
+                    }, keyboardType: "phone-pad", underlineColorAndroid: "rgba(0,0,0,0)", value: displayValue, color: User.StartUp.DB.DarkMode === "true" ? "white" : "black", placeholder: "+99 99 000 9999" }, this.props.textProps))),
             react_1.default.createElement(CountryPicker_1.default, { ref: (ref) => {
                     this.picker = ref;
                 }, selectedCountry: iso2, onSubmit: this.selectCountry, buttonColor: this.props.pickerButtonColor, cancelText: this.props.cancelText, cancelTextStyle: this.props.cancelTextStyle, confirmText: this.props.confirmText, confirmTextStyle: this.props.confirmTextStyle, pickerBackgroundColor: this.props.pickerBackgroundColor, itemStyle: this.props.pickerItemStyle, onPressCancel: this.props.onPressCancel, onPressConfirm: this.props.onPressConfirm })));
